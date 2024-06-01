@@ -1,0 +1,88 @@
+--Select the oldest and newest founding years from the businesses table
+SELECT
+	MIN(year_founded) AS Oldest,
+	MAX(year_founded) AS Newest
+FROM businesses;
+
+--How many businesses were founded before 1000?
+SELECT
+	COUNT(*)
+FROM businesses
+WHERE year_founded < 1000;
+
+--Which businesses were founded before 1000?
+SELECT *
+FROM businesses
+WHERE year_founded < 1000
+ORDER BY year_founded;
+
+--Exploring the categories
+SELECT
+	b.business,
+	b.year_founded,
+	b.country_code,
+	c.category
+FROM businesses AS b
+LEFT JOIN categories AS c
+ON b.category_code = c.category_code
+WHERE year_founded < 1000
+ORDER BY year_founded;
+
+--Counting the categories
+SELECT TOP(10)
+	c.category,
+	COUNT(category) AS n
+FROM categories AS c
+LEFT JOIN businesses AS b
+ON c.category_code = b.category_code
+GROUP BY category
+ORDER BY n DESC;
+
+--Oldest business by continent
+SELECT
+	MIN(year_founded) AS oldest,
+	continent
+FROM countries AS c
+LEFT JOIN businesses AS b
+ON c.country_code = b.country_code
+GROUP BY continent
+ORDER BY oldest;
+
+--Joining everything for further analysis
+SELECT
+	b.business,
+	b.year_founded,
+	c1.category_code,
+	c2.country_code,
+	c2.continent
+FROM businesses AS b
+INNER JOIN categories AS C1
+ON b.category_code = c1.category_code
+INNER JOIN countries AS c2
+ON b.country_code = c2.country_code;
+
+--Counting categories by continent
+SELECT
+	C2.continent,
+	C1.category,
+	COUNT(*) AS n
+FROM businesses AS b
+INNER JOIN categories AS c1 
+ON b.category_code = c1.category_code
+INNER JOIN countries AS C2
+ON b.country_code = c2.country_code
+GROUP BY c2.continent, c1.category; 
+
+--Which are the most common categories for the oldest businesses on each continent?
+SELECT
+	c2.continent,
+	c1.category,
+	COUNT(*) AS n
+FROM businesses AS b
+INNER JOIN categories AS c1
+ON b.category_code = c1.category_code
+INNER JOIN countries AS c2
+ON b.country_code = c2.country_code
+GROUP BY c2.continent, c1.category
+HAVING COUNT(*) > 5
+ORDER BY n DESC;
